@@ -19,7 +19,7 @@ jobs:
             python-version: ${{matrix.python-version}}
         - run: pip install -r services/${{matrix.service}}/requirements.txt
         - run: pytest -rA services/${{matrix.service}} > tee ${{matrix.service}}-${{matrix.python-version}}-test-report
-        - uses: actions/upload-artidact@v7
+        - uses: actions/upload-artifact@v7
           if: always()
           with:
             name: ${{matrix.service}}-${{matrix.python-version}} test-report
