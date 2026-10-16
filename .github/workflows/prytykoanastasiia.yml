@@ -10,10 +10,11 @@ jobs:
       strategy: 
         matrix:
           service: [tasks-api, title-normalizer]
+          python-version: [3.12, 3.11, 3.8]
       steps:
         - uses: actions/checkout@v7
         - uses: actions/setup-python@v7
           with:
-            python-version: "3.12"
+            python-version: ${{matrix.python-version}}
         - run: pip install -r services/${{matrix.service}}/requirements.txt
         - run: pytest services/${{matrix.service}}
