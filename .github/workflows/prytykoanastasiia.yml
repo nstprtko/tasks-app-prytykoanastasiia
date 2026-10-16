@@ -18,11 +18,9 @@ jobs:
           with:
             python-version: ${{matrix.python-version}}
         - run: pip install -r services/${{matrix.service}}/requirements.txt
-        - run: pytest services/${{matrix.service}}
-        - shell: bash 
-          run: pytest -rA services/${{matrix.service}} | tee ${{matrix.service}}-test-report.txt
+          run: pytest -rA services/${{matrix.service}} > tee ${{matrix.service}}-${{matrix.python-version}}-test-report
         - uses: actions/upload-artidact@v7
           if: always()
           with:
-            name: ${{matrix.service}}-test-report
-            path: ${{matrix.service}}-test-report.txt
+            name: ${{matrix.service}}-${{matrix.python-version}} test-report
+            path: ${{matrix.service}}-${{matrix.python-version}}-test-report.txt
