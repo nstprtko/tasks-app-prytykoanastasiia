@@ -4,34 +4,8 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    types: [closed]
-    branches:
-      - main
-
 
 jobs:
-
-    run_tests:
-      runs-on: ubuntu-latest
-      strategy: 
-        fail-fast: false
-        matrix:
-          service: [tasks-api, title-normalizer]
-          python-version: [3.12, 3.11, 3.8]
-      steps:
-        - uses: actions/checkout@v7
-        - uses: actions/setup-python@v7
-          with:
-            python-version: ${{matrix.python-version}}
-        - run: pip install -r services/${{matrix.service}}/requirements.txt
-        - run: pytest -rA services/${{matrix.service}} > tee ${{matrix.service}}-${{matrix.python-version}}-test-report
-        - uses: actions/upload-artifact@v7
-          if: always()
-          with:
-            name: ${{matrix.service}}-${{matrix.python-version}} test-report
-            path: ${{matrix.service}}-${{matrix.python-version}}-test-report.txt
-
   run_tests:
     runs-on: ubuntu-latest
     strategy:
@@ -60,27 +34,23 @@ jobs:
           name: ${{matrix.service}}-${{matrix.python-version}}-bandit-report
           path: ${{matrix.service}}-${{matrix.python-version}}-bandit-report.html
 
-
-deploy:
-  needs: run_tests
-  runs-on: ubuntu-latest
-  environment:
-    name: github-pages
-    url: ${{steps.deployment.outputs.page_url}}
-  permissions:
-    pages: write
-    id-token: write
-
-
-  steps:
-  - uses: actions/download-artifact@v7
-    with:
-      name: tasks-api-3.12-bandit-report
-      path: _site
-  - run: mv_site/tasks-api-3.12-bandit-report.html  _site/index.html
-  - uses: actions/upload-pages-artifact@v5
-    with:
-      path: _site/
-  - uses: actions/deploy-pages@v5
-    id: deployment
-
+  deploy:
+    needs: run_tests
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{steps.deployment.outputs.page_url}}
+    permissions:
+      pages: write # default is none so no deployment to pages allowed unsless we set it
+      id-token: write
+    steps:
+    - uses: actions/download-artifact@v7
+      with:
+        name: tasks-api-3.12-bandit-report
+        path: _site
+    - run: mv _site/tasks-api-3.12-bandit-report.html _site/index.html
+    - uses: actions/upload-pages-artifact@v5
+      with:
+        path: _site/
+    - uses: actions/deploy-pages@v5 # outputs page_url
+      id: deployment
