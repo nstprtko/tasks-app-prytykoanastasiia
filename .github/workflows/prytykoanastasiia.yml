@@ -48,9 +48,12 @@ jobs:
       with:
         name: tasks-api-3.12-bandit-report
         path: _site
-    - run: mv _site/tasks-api-3.12-bandit-report.html _site/index.html
+    - uses: actions/download-artifact@v7
+      with: 
+        name: title-normalizer-3.12-bandit-report
+        path: _site
     - uses: actions/upload-pages-artifact@v5
       with:
         path: _site/
-    - uses: actions/deploy-pages@v5 # outputs page_url
-      id: deployment
+    - id: deployment
+      uses: actions/deploy-pages@v5
