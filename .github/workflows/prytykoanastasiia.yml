@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
 
 jobs:
   run_tests:
@@ -36,24 +41,31 @@ jobs:
 
   deploy:
     needs: run_tests
+#    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     environment:
       name: github-pages
-      url: ${{steps.deployment.outputs.page_url}}
+      url: ${{ steps.deployment.outputs.page_url }}
     permissions:
-      pages: write # default is none so no deployment to pages allowed unsless we set it
+      pages: write # default for Github Workflow token is none so we cannot write to github pages without it
       id-token: write
     steps:
-    - uses: actions/download-artifact@v7
-      with:
-        name: tasks-api-3.12-bandit-report
-        path: _site
-    - uses: actions/download-artifact@v7
-      with: 
-        name: title-normalizer-3.12-bandit-report
-        path: _site
-    - uses: actions/upload-pages-artifact@v5
-      with:
-        path: _site/
-    - id: deployment
-      uses: actions/deploy-pages@v5
+      - uses: actions/download-artifact@v8
+        with:
+          name: tasks-api-3.12-bandit-report
+          path: _site
+      - uses: actions/download-artifact@v8
+        with:
+          name: title-normalizer-3.12-bandit-report
+          path: _site
+      - run: |
+          cat > _site/index.html <<'EOF'
+          <h1>Bandit reports</h1>
+          <p><a href="tasks-api-3.12-bandit-report.html">tasks-api</a></p>
+          <p><a href="title-normalizer-3.12-bandit-report.html">title-normalizer</a></p>
+          EOF
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v5
