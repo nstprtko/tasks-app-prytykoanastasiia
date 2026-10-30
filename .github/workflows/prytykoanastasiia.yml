@@ -1,3 +1,4 @@
+
 name: Test and Scan
 
 on:
@@ -36,7 +37,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ${{matrix.service}}-${{matrix.python-version}}-bandit-report
-          path: ${{matrix.service}}-${{matrix.python-version}}-bandit-report.html
+          path: ${{matrix.service}}-${{matrix.python-version}}-${{matrix.python-version}}-bandit-report.html
 
   generate_api_docs:
     runs-on: ubuntu-latest
@@ -56,6 +57,15 @@ jobs:
         with:
           name: ${{matrix.service}}-api-docs
           path: services/${{matrix.service}}/apidocs
+
+  build-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [tasks-api, title-normalizer] # ${{matrix.service}}
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t ${{ matrix.service }} services/${{ matrix.service }}
 
   deploy:
     needs: [run_tests, generate_api_docs]
