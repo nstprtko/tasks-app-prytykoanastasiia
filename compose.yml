@@ -1,0 +1,16 @@
+services:
+  tasks-api:
+    build:
+      context: ./services/tasks-api
+    ports:
+      - "5000:5000"
+    environment:
+      - NORMALIZER_URL=http://title-normalizer:5001
+    depends_on:
+      - title-normalizer
+
+  title-normalizer:
+    build:
+      context: ./services/title-normalizer
+    ports:
+      - "5001:5001"
