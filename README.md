@@ -56,4 +56,3 @@ Run in each service folder:
 ```bash
 pytest
 ```
-<!-- README updated to verify pull request checks -->
